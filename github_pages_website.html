@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Roblox Game Control Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .config-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .config-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .config-row label {
+            font-weight: 600;
+            min-width: 120px;
+        }
+
+        .config-row input {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .config-row input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-success { background: linear-gradient(45deg, #4CAF50, #45a049); }
+        .btn-warning { background: linear-gradient(45deg, #ff9800, #f57c00); }
+        .btn-danger { background: linear-gradient(45deg, #f44336, #d32f2f); }
+        .btn-info { background: linear-gradient(45deg, #2196F3, #1976D2); }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.loading {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .player-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .player-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .player-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .player-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 15px;
+        }
+
+        .player-info h3 {
+            font-size: 1.3em;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .player-info .user-id {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .health-section {
+            margin-bottom: 20px;
+        }
+
+        .health-bar-container {
+            background: #f0f0f0;
+            height: 25px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .health-bar {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.5s ease, background 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .health-bar.high { background: linear-gradient(90deg, #4CAF50, #45a049); }
+        .health-bar.medium { background: linear-gradient(90deg, #ff9800, #f57c00); }
+        .health-bar.low { background: linear-gradient(90deg, #f44336, #d32f2f); }
+
+        .health-text {
+            margin: 5px 0;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .player-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .custom-health {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            align-items: center;
+        }
+
+        .custom-health input {
+            width: 80px;
+            padding: 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .last-seen {
+            color: #666;
+            font-size: 0.8em;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .no-players {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .refresh-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .players-grid { grid-template-columns: 1fr; }
+            .config-row { flex-direction: column; align-items: stretch; }
+            .config-row label { min-width: auto; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 Roblox Game Control Panel</h1>
+            <p>Control your Roblox game from anywhere in the world!</p>
+        </div>
+
+        <div class="config-section">
+            <h2>🔧 Configuration</h2>
+            <div class="config-row">
+                <label for="apiUrl">API URL:</label>
+                <input type="url" id="apiUrl" placeholder="https://your-app.railway.app" required>
+            </div>
+            <div class="config-row">
+                <label for="apiKey">API Key:</label>
+                <input type="password" id="apiKey" placeholder="your-secret-api-key" required>
+            </div>
+            <div class="config-row">
+                <label></label>
+                <button class="btn btn-info" onclick="testConnection()">🔗 Test Connection</button>
+                <button class="btn" onclick="saveConfig()">💾 Save Config</button>
+                <button class="btn btn-success" onclick="fetchPlayers()">🔄 Refresh Players</button>
+            </div>
+        </div>
+
+        <div id="status" class="status" style="display: none;"></div>
+
+        <div class="refresh-section">
+            <label>
+                <input type="checkbox" id="autoRefresh" checked> 
+                Auto-refresh every 5 seconds
+            </label>
+        </div>
+
+        <div id="playersContainer">
+            <div class="no-players">
+                📡 Enter your API configuration above and click "Refresh Players" to get started!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let refreshInterval;
+        let config = {
+            apiUrl: '',
+            apiKey: ''
+        };
+
+        // Load saved configuration
+        function loadConfig() {
+            const savedConfig = localStorage.getItem('robloxApiConfig');
+            if (savedConfig) {
+                config = JSON.parse(savedConfig);
+                document.getElementById('apiUrl').value = config.apiUrl || '';
+                document.getElementById('apiKey').value = config.apiKey || '';
+                showStatus('Configuration loaded from browser storage', 'success');
+            }
+        }
+
+        // Save configuration
+        function saveConfig() {
+            config.apiUrl = document.getElementById('apiUrl').value.trim();
+            config.apiKey = document.getElementById('apiKey').value.trim();
+            
+            if (!config.apiUrl || !config.apiKey) {
+                showStatus('Please enter both API URL and API Key', 'error');
+                return;
+            }
+
+            localStorage.setItem('robloxApiConfig', JSON.stringify(config));
+            showStatus('Configuration saved successfully!', 'success');
+        }
+
+        // Show status message
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+            
+            if (type !== 'loading') {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Make API request
+        async function makeApiRequest(endpoint, method = 'GET', body = null) {
+            if (!config.apiUrl || !config.apiKey) {
+                throw new Error('Please configure API URL and API Key first');
+            }
+
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': config.apiKey
+                }
+            };
+
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            const response = await fetch(`${config.apiUrl}${endpoint}`, options);
+            
+            if (!response.ok) {
+                const error = await response.text();
+                throw new Error(`HTTP ${response.status}: ${error}`);
+            }
+
+            return await response.json();
+        }
+
+        // Test connection
+        async function testConnection() {
+            try {
+                saveConfig(); // Save current config
+                showStatus('Testing connection...', 'loading');
+                
+                const result = await makeApiRequest('/');
+                showStatus(`✅ Connection successful! ${result.status}`, 'success');
+            } catch (error) {
+                showStatus(`❌ Connection failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Fetch players from API
+        async function fetchPlayers() {
+            try {
+                if (!config.apiUrl || !config.apiKey) {
+                    saveConfig();
+                    if (!config.apiUrl || !config.apiKey) {
+                        showStatus('Please enter API URL and API Key', 'error');
+                        return;
+                    }
+                }
+
+                showStatus('Loading players...', 'loading');
+                const result = await makeApiRequest('/api/players');
+                
+                displayPlayers(result.players, result.count);
+                showStatus(`✅ Loaded ${result.count} player(s)`, 'success');
+            } catch (error) {
+                showStatus(`❌ Failed to load players: ${error.message}`, 'error');
+                document.getElementById('playersContainer').innerHTML = 
+                    `<div class="no-players">❌ Error loading players. Check your configuration.</div>`;
+            }
+        }
+
+        // Display players
+        function displayPlayers(players, count) {
+            const container = document.getElementById('playersContainer');
+            
+            if (!players || count === 0) {
+                container.innerHTML = `
+                    <div class="no-players">
+                        👻 No players currently online.<br>
+                        Players will appear here when they join your Roblox game.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <h2>👥 Online Players (${count})</h2>
+                <div class="players-grid">
+                    ${Object.entries(players).map(([userId, player]) => createPlayerCard(userId, player)).join('')}
+                </div>
+            `;
+        }
+
+        // Create player card HTML
+        function createPlayerCard(userId, player) {
+            const healthPercent = (player.health / player.maxHealth) * 100;
+            const healthClass = healthPercent > 66 ? 'high' : healthPercent > 33 ? 'medium' : 'low';
+            const avatar = player.username.charAt(0).toUpperCase();
+            const lastSeen = player.lastSeen ? new Date(player.lastSeen).toLocaleString() : 'Unknown';
+
+            return `
+                <div class="player-card">
+                    <div class="player-header">
+                        <div class="player-avatar">${avatar}</div>
+                        <div class="player-info">
+                            <h3>${player.username}</h3>
+                            <div class="user-id">ID: ${userId}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="health-section">
+                        <div class="health-bar-container">
+                            <div class="health-bar ${healthClass}" style="width: ${healthPercent}%">
+                                ${Math.round(healthPercent)}%
+                            </div>
+                        </div>
+                        <div class="health-text">
+                            Health: ${player.health} / ${player.maxHealth}
+                        </div>
+                    </div>
+
+                    <div class="custom-health">
+                        <label>Set Health:</label>
+                        <input type="number" id="health-${userId}" min="0" max="${player.maxHealth}" value="${player.health}" step="1">
+                        <button class="btn btn-info" onclick="setCustomHealth('${userId}')">Set</button>
+                    </div>
+
+                    <div class="player-actions">
+                        <button class="btn btn-success" onclick="healPlayer('${userId}')">💚 Full Heal</button>
+                        <button class="btn btn-warning" onclick="setHealthPercent('${userId}', 50)">⚡ Half Health</button>
+                        <button class="btn btn-warning" onclick="damagePlayer('${userId}', 25)">💥 Damage 25</button>
+                        <button class="btn btn-danger" onclick="killPlayer('${userId}')">💀 Kill</button>
+                    </div>
+
+                    <div class="last-seen">Last seen: ${lastSeen}</div>
+                </div>
+            `;
+        }
+
+        // Player action functions
+        async function setCustomHealth(userId) {
+            const healthInput = document.getElementById(`health-${userId}`);
+            const health = parseInt(healthInput.value);
+            
+            if (isNaN(health) || health < 0) {
+                showStatus('Please enter a valid health value', 'error');
+                return;
+            }
+
+            await changeHealth(userId, health, 'set');
+        }
+
+        async function healPlayer(userId) {
+            await makeApiRequest(`/api/player/${userId}/heal`, 'POST');
+            showStatus('Player healed successfully!', 'success');
+            setTimeout(fetchPlayers, 1000);
+        }
+
+        async function killPlayer(userId) {
+            if (confirm('Are you sure you want to kill this player?')) {
+                await makeApiRequest(`/api/player/${userId}/kill`, 'POST');
+                showStatus('Player eliminated!', 'success');
+                setTimeout(fetchPlayers, 1000);
+            }
+        }
+
+        async function setHealthPercent(userId, percent) {
+            // Get player's max health first
+            const players = await makeApiRequest('/api/players');
+            const player = players.players[userId];
+            if (player) {
+                const newHealth = Math.round((percent / 100) * player.maxHealth);
+                await changeHealth(userId, newHealth, 'set');
+            }
+        }
+
+        async function damagePlayer(userId, damage) {
+            await changeHealth(userId, damage, 'subtract');
+        }
+
+        async function changeHealth(userId, health, action) {
+            try {
+                await makeApiRequest(`/api/player/${userId}/health`, 'POST', { health, action });
+                showStatus(`Health ${action} successful!`, 'success');
+                setTimeout(fetchPlayers, 1000);
+            } catch (error) {
+                showStatus(`Failed to change health: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-refresh functionality
+        function setupAutoRefresh() {
+            const checkbox = document.getElementById('autoRefresh');
+            
+            function toggleAutoRefresh() {
+                if (refreshInterval) {
+                    clearInterval(refreshInterval);
+                    refreshInterval = null;
+                }
+                
+                if (checkbox.checked) {
+                    refreshInterval = setInterval(() => {
+                        fetchPlayers();
+                    }, 5000);
+                }
+            }
+            
+            checkbox.addEventListener('change', toggleAutoRefresh);
+            if (checkbox.checked) {
+                toggleAutoRefresh();
+            }
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            loadConfig();
+            setupAutoRefresh();
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        });
+    </script>
+</body>
+</html>
